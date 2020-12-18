@@ -881,7 +881,7 @@ if ($_POST['action'] == 'get_groups') {
         $total = count($addresses);
         $added = 0;
 
-        $stmt = $db->prepare('INSERT OR IGNORE INTO adlist (address,comment) VALUES (:address,:comment)');
+        $stmt = $db->prepare('INSERT OR IGNORE INTO adlist (address,comment,api_key) VALUES (:address,:comment,:api_key)');
         if (!$stmt) {
             throw new Exception('While preparing statement: ' . $db->lastErrorMsg());
         }
@@ -893,6 +893,15 @@ if ($_POST['action'] == 'get_groups') {
         }
         if (!$stmt->bindValue(':comment', $comment, SQLITE3_TEXT)) {
             throw new Exception('While binding comment: ' . $db->lastErrorMsg());
+        }
+
+        $api_key = html_entity_decode($_POST['api_key']);
+        if (strlen($api_key) === 0) {
+            // Store NULL in database for empty API Key
+            $api_key = null;
+        }
+        if (!$stmt->bindValue(':api_key', $api_key, SQLITE3_TEXT)) {
+            throw new Exception('While binding api_key: ' . $db->lastErrorMsg());
         }
 
         foreach ($addresses as $address) {
@@ -926,7 +935,7 @@ if ($_POST['action'] == 'get_groups') {
 } elseif ($_POST['action'] == 'edit_adlist') {
     // Edit adlist identified by ID
     try {
-        $stmt = $db->prepare('UPDATE adlist SET enabled=:enabled, comment=:comment WHERE id = :id');
+        $stmt = $db->prepare('UPDATE adlist SET enabled=:enabled, comment=:comment, api_key=:api_key WHERE id = :id');
         if (!$stmt) {
             throw new Exception('While preparing statement: ' . $db->lastErrorMsg());
         }
@@ -947,6 +956,15 @@ if ($_POST['action'] == 'get_groups') {
         }
         if (!$stmt->bindValue(':comment', $comment, SQLITE3_TEXT)) {
             throw new Exception('While binding comment: ' . $db->lastErrorMsg());
+        }
+
+        $api_key = html_entity_decode($_POST['api_key']);
+        if (strlen($api_key) === 0) {
+                // Store NULL in database for empty API Key
+                $api_key = null;
+        }
+        if (!$stmt->bindValue(':comment', $api_key, SQLITE3_TEXT)) {
+            throw new Exception('While binding api_key: ' . $db->lastErrorMsg());
         }
 
         if (!$stmt->bindValue(':id', intval($_POST['id']), SQLITE3_INTEGER)) {

@@ -43,6 +43,7 @@ function initTable() {
       { data: "address" },
       { data: "enabled", searchable: false },
       { data: "comment" },
+      { data: "api_key" },
       { data: "groups", searchable: false },
       { data: null, width: "80px", orderable: false }
     ],
@@ -91,8 +92,13 @@ function initTable() {
       commentEl.val(utils.unescapeHtml(data.comment));
       commentEl.on("change", editAdlist);
 
-      $("td:eq(3)", row).empty();
-      $("td:eq(3)", row).append(
+      $("td:eq(3)", row).html('<input id="api_key_' + data.id + '" class="form-control">');
+      var apiKeyEl = $("#api_key_" + data.id, row);
+      apiKeyEl.val(utils.unescapeHtml(data.api_key));
+      apiKeyEl.on("change", editAdlist);
+
+      $("td:eq(4)", row).empty();
+      $("td:eq(4)", row).append(
         '<select class="selectpicker" id="multiselect_' + data.id + '" multiple></select>'
       );
       var selectEl = $("#multiselect_" + data.id, row);
@@ -217,6 +223,7 @@ function initTable() {
 function addAdlist() {
   var address = utils.escapeHtml($("#new_address").val());
   var comment = utils.escapeHtml($("#new_comment").val());
+  var api_key = utils.escapeHtml($("#new_api_key").val());
 
   utils.disableAll();
   utils.showAlert("info", "", "Adding adlist...", address);
@@ -236,6 +243,7 @@ function addAdlist() {
       action: "add_adlist",
       address: address,
       comment: comment,
+      api_key: api_key,
       token: token
     },
     success: function (response) {
@@ -245,6 +253,7 @@ function addAdlist() {
         table.ajax.reload(null, false);
         $("#new_address").val("");
         $("#new_comment").val("");
+        $("#new_api_key").val("");
         table.ajax.reload();
       } else {
         utils.showAlert("error", "", "Error while adding new adlist: ", response.message);
@@ -264,6 +273,7 @@ function editAdlist() {
   var id = tr.attr("data-id");
   var status = tr.find("#status_" + id).is(":checked") ? 1 : 0;
   var comment = utils.escapeHtml(tr.find("#comment_" + id).val());
+  var api_key = utils.escapeHtml(tr.find("#api_key_" + id).val());
   var groups = tr.find("#multiselect_" + id).val();
   var address = utils.escapeHtml(tr.find("#address_" + id).text());
 
@@ -284,6 +294,10 @@ function editAdlist() {
       done = "edited comment of";
       notDone = "editing comment of";
       break;
+    case "api_key_" + id:
+        done = "edited api key of";
+        notDone = "editing api key of";
+        break;
     case "multiselect_" + id:
       done = "edited groups of";
       notDone = "editing groups of";
@@ -306,6 +320,7 @@ function editAdlist() {
       comment: comment,
       status: status,
       groups: groups,
+      api_key: api_key,
       token: token
     },
     success: function (response) {
