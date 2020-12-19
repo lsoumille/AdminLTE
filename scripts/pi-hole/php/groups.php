@@ -963,7 +963,7 @@ if ($_POST['action'] == 'get_groups') {
                 // Store NULL in database for empty API Key
                 $api_key = null;
         }
-        if (!$stmt->bindValue(':comment', $api_key, SQLITE3_TEXT)) {
+        if (!$stmt->bindValue(':api_key', $api_key, SQLITE3_TEXT)) {
             throw new Exception('While binding api_key: ' . $db->lastErrorMsg());
         }
 
